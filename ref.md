@@ -54,14 +54,13 @@
 
 1. **阶段锁**
 
-   把流程拆成阶段文件（存放在 `docs/` 下）：
+   把流程拆成阶段文件（存放在 `workflow/` 下）：
 
    ```text
-   requirements/draft.md
-   requirements/confirmed.md
-   technical/options.md
-   technical/selected.md
-   execution/ready.md
+   workflow/requirements.md
+   workflow/solution-options.md
+   workflow/solution-selected.md
+   workflow/implementation-ready.md
    ```
 
    后一阶段必须引用前一阶段的确认字段，否则禁止继续。

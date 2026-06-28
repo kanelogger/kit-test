@@ -49,7 +49,7 @@ Initialization rules:
 * `workflow-state.json` starts at `stage: "initialized"` with `allowedNextStages: ["requirements-draft"]` and empty `history: []`.
 * Root `SPECS/API.md` is created at init as the only cross-end API contract, with frontmatter `status: draft`.
 * `frontend/SPECS/API.md` and `backend/SPECS/API.md` are created at init and must contain exactly this source line: `Source: ../../SPECS/API.md`.
-* `frontend/SPECS/README.md` and `backend/SPECS/README.md` must list future local artifacts: `PRD.md`, `ARCHITECTURE.md`, `API.md`, `FEATURES/<feature-slug>.md`.
+* `frontend/SPECS/README.md` and `backend/SPECS/README.md` must list future local artifacts: `PRD.md`, `ARCHITECTURE.md`, `API.md`, `FEATURES/<feature-slug>/spec.md, tasks.md`.
 * `tasks/backlog.md` is not created until `requirements-confirmed`; `tasks/sprint-01.md` is not created until `implementation-ready`.
 * Stage artifact files under `workflow/` are not pre-created. A stage artifact may exist only for the current stage or the immediate target of `kit stage advance`.
 
@@ -94,6 +94,48 @@ History entries are written only by `kit stage advance`:
 ```
 
 `--quote` is mandatory for every stage advance and must be the user exact quote, not an Agent summary.
+
+`--by` must be `"user"` for all `kit stage advance` calls in v1. Agent-initiated advances are not supported.
+
+### History `doc` mapping
+
+| Transition | doc field value |
+| --- | --- |
+| `initialized` → `requirements-draft` | `workflow/requirements.md` |
+| `requirements-draft` → `requirements-confirmed` | `workflow/requirements.md` |
+| `requirements-confirmed` → `solution-options` | `workflow/solution-options.md` |
+| `solution-options` → `solution-selected` | `workflow/solution-selected.md` |
+| `solution-selected` → `implementation-ready` | `workflow/implementation-ready.md` |
+
+## Stage File Lifecycle
+
+`workflow/*.md` files follow a strict creation-and-advance lifecycle:
+
+1. **Agent creates.** The Agent writes the stage file for the **immediate next stage** (the only entry in `allowedNextStages`). This is the "immediate target" rule — the file may exist before `kit stage advance` because the Agent prepares it in advance.
+2. **User confirms and advances.** The user reviews the file, then runs `kit stage advance <stage> --by user --quote "..."`. `kit stage advance` **does not create or modify any `workflow/*.md` file**. It only updates `workflow-state.json` (stage, allowedNextStages, history).
+3. **File becomes current-stage artifact.** After advance, the previously prepared file is now the current stage's required artifact. `kit check` (with Phase 2 artifact checks) validates it exists with correct frontmatter.
+4. **Next cycle.** The Agent now prepares the file for the new immediate next stage, and the cycle repeats.
+
+Example flow for `initialized` → `requirements-draft`:
+
+```text
+[initialized]  No workflow/*.md files exist
+    │
+    │  Agent creates workflow/requirements.md (status: draft)
+    │  ↑ allowed as "immediate target"
+    │
+    │  User: kit stage advance requirements-draft --by user --quote "确认需求"
+    │  ↑ only updates workflow-state.json; does NOT touch workflow/requirements.md
+    │
+[requirements-draft]  workflow/requirements.md exists (current stage artifact)
+    │
+    │  Agent creates workflow/requirements.md (status: confirmed, confirmedBy, etc.)
+    │  ↑ same file, updated frontmatter; still the immediate target
+    │
+    │  User: kit stage advance requirements-confirmed --by user --quote "需求没问题"
+    │
+[requirements-confirmed]  workflow/requirements.md is confirmed
+```
 
 ## Gate Rules
 
@@ -152,20 +194,26 @@ selectionQuote: "用户逐字原话"
 Default skill chain is intentionally narrow:
 
 ```text
-requirement-clarification
--> doc-iteration
--> spec-lock
--> solution-options
--> tech-plan-generator
--> api-design
--> shell-implementation
--> tdd
--> webapp-testing
--> code-review
--> documentation
+requirement-clarification (→ ce-brainstorm)
+-> doc-iteration (→ doc-coauthoring)
+-> spec-lock (→ spec-driven-development)
+-> solution-options (→ design-an-interface)
+-> tech-plan-generator (→ planning-and-task-breakdown)
+-> api-design (→ api-and-interface-design)
+-> shell-implementation (→ implement)
+-> tdd (→ tdd)
+-> webapp-testing (→ webapp-testing)
+-> code-review (→ code-review-and-quality)
+-> documentation (→ documentation-and-adrs)
 ```
 
 `requirement-grilling`, `domain-modeling`, `ubiquitous-language`, `security-review`, UI design, prototype, debug, and architecture diagram skills remain conditional triggers. Hook support is limited to generated documentation and examples in v1; no runtime-specific hook integration ships in v1.
+
+**v1 limitation:** Stage gates are enforced only by `kit check` (post-hoc validation of JSON and YAML frontmatter). `AGENTS.md` rules rely on Agent compliance; there is no runtime interception of file creation or stage advancement. Runtime hooks and real-time gate enforcement are deferred to v2.
+
+### `upfrontUserConfirm` (intentionally excluded)
+
+The `workflow-state.json` schema does not include an `upfrontUserConfirm` field in v1. Every `kit stage advance` call already requires `--quote` (the user's exact words), so the confirmation signal is captured in the `history[]` array at advance time. A separate in-schema confirmation flag would be redundant with this design and is deferred to v2 if needed.
 
 ## Test Boundary
 

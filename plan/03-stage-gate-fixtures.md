@@ -50,3 +50,12 @@ summary: 为状态机、阶段门和命令行为补齐正负向 fixture 与测�
 ## Depends On
 
 Phase 1 and Phase 2.
+
+## Completion Gate
+
+- [ ] Every valid fixture passes `kit check`.
+- [ ] Every invalid fixture fails with an error and concrete repair action.
+- [ ] `kit stage advance` appends `history[]` entries with all required fields.
+- [ ] `kit stage advance` rejects skipped stages.
+- [ ] Test suite does not depend on Markdown body parsing.
+- [ ] All Acceptance Criteria are met.

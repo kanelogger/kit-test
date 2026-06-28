@@ -1,20 +1,18 @@
 # 技能清单
 
-> 项目技能目录：`skills/`
-
-## 说明
-
----
+> 项目技能目录：`.agents/skills/`
+>
+> 本文档是**人类可读的技能目录**，不提供 Agent 侧索引能力。Agent 的技能发现和路由由独立的 JSON 索引文件负责。
 
 ## 一、首批核心技能（L1）
 
-对应 `product-ref.md` 第 6–9 步和默认 Agent 流程。每个技能进入实现前应在 `docs/execution/skill-trace.md` 中留下记录。
+对应 `product-ref.md` 第 6–9 步和默认 Agent 流程。
 
 | 项目阶段 | 项目别名 | 实际 Skill | 作用 |
 | --- | --- | --- | --- |
 | 需求澄清 | `requirement-clarification` | `ce-brainstorm` | 多轮澄清后产出结构化需求文档 |
 | 需求压力测试 | `requirement-grilling` | `grilling` | 追问边界、异常、验收标准，把态度转成事实 |
-| 需求迭代 | `doc-iteration` | `doc-coauthoring` | 与用户协同修改 `docs/requirements/requirements.md` |
+| 需求迭代 | `doc-iteration` | `doc-coauthoring` | 与用户协同修改 `workflow/requirements.md` |
 | 规格锁定 | `spec-lock` | `spec-driven-development` | 将需求转成可执行规格，先 spec 后代码 |
 | 领域建模 | `domain-modeling` | `domain-modeling` | 统一术语、实体、流程边界 |
 | 领域术语 | `ubiquitous-language` | `ubiquitous-language` | 统一领域术语表 |
@@ -61,13 +59,5 @@
 | `skill-craft` | `skill-creator` | 现成技能不够时定制新技能 |
 | `skill-optimize` | `skill-optimizer` | 优化现有技能 |
 | `handoff` | `handoff` | 阶段间切换 Agent/LLM 的交接协议 |
-
-### 项目自建技能
-
-以下技能不在 `hk-skills` 仓库中，需在本项目内实现：
-
-| 项目别名 | 实现位置 | 作用 |
-| --- | --- | --- |
-| `workflow-stage-gate` | `kit/skills/workflow-stage-gate/SKILL.md` | 校验 `workflow-state.json`，不满足阶段条件则阻止继续 |
 
 ---
