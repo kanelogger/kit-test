@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { emitter } from "@/utils/mitt";
 import NProgress from "@/utils/progress";
-import { RouteConfigs } from "../../types";
+import { RouteConfigs, tagsViewsType } from "../../types";
 import { useTags } from "../../hooks/useTag";
 import { routerArrays } from "@/layout/types";
 import { onClickOutside } from "@vueuse/core";
 import TagChrome from "./components/TagChrome.vue";
+import { getConfig } from "@/config";
 import { handleAliveRoute, getTopMenu } from "@/router/utils";
-import { useSettingStoreHook } from "@/store/modules/settings";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import { ref, watch, unref, toRaw, nextTick, onBeforeUnmount } from "vue";
@@ -17,9 +17,6 @@ import {
   isAllEmpty,
   useResizeObserver
 } from "@pureadmin/utils";
-
-import ExitFullscreen from "~icons/ri/fullscreen-exit-fill";
-import Fullscreen from "~icons/ri/fullscreen-fill";
 import ArrowDown from "~icons/ri/arrow-down-s-line";
 import ArrowRightSLine from "~icons/ri/arrow-right-s-line";
 import ArrowLeftSLine from "~icons/ri/arrow-left-s-line";
@@ -38,7 +35,6 @@ const {
   showModel,
   translateX,
   isFixedTag,
-  pureSetting,
   activeIndex,
   getTabStyle,
   isScrolling,
@@ -50,8 +46,7 @@ const {
   closeMenu,
   onMounted,
   onMouseenter,
-  onMouseleave,
-  onContentFullScreen
+  onMouseleave
 } = useTags();
 
 const tabDom = ref();
@@ -183,9 +178,9 @@ function dynamicRouteTag(value: string): void {
     return item.path === value;
   });
 
-  function concatPath(arr: object[], value: string) {
+  function concatPath(arr: RouteConfigs[], value: string) {
     if (!hasValue) {
-      arr.forEach((arrItem: any) => {
+      arr.forEach((arrItem: RouteConfigs) => {
         if (arrItem.path === value) {
           useMultiTagsStoreHook().handleTags("push", {
             path: value,
@@ -200,7 +195,7 @@ function dynamicRouteTag(value: string): void {
       });
     }
   }
-  concatPath(router.options.routes as any, value);
+  concatPath(router.options.routes as unknown as RouteConfigs[], value);
 }
 
 /** 刷新路由 */
@@ -215,8 +210,8 @@ function onFresh() {
   NProgress.done();
 }
 
-function deleteDynamicTag(obj: any, current: any, tag?: string) {
-  const valueIndex: number = multiTags.value.findIndex((item: any) => {
+function deleteDynamicTag(obj: RouteConfigs, current: string, tag?: string) {
+  const valueIndex: number = multiTags.value.findIndex((item: RouteConfigs) => {
     if (item.query) {
       if (item.path === obj.path) {
         return item.query === obj.query;
@@ -247,7 +242,7 @@ function deleteDynamicTag(obj: any, current: any, tag?: string) {
       useMultiTagsStoreHook().handleTags("splice", "", {
         startIndex,
         length
-      }) as any;
+      });
     }
     dynamicTagView();
   };
@@ -339,26 +334,13 @@ function onClickDrop(key, item, selectRoute?: RouteConfigs) {
       // router.push(fixedTags[fixedTags.length - 1]?.path);
       handleAliveRoute(route as ToRouteType);
       break;
-    case 6:
-      // 内容区全屏
-      onContentFullScreen();
-      setTimeout(() => {
-        if (pureSetting.hiddenSideBar) {
-          tagsViews[6].icon = ExitFullscreen;
-          tagsViews[6].text = "内容区退出全屏";
-        } else {
-          tagsViews[6].icon = Fullscreen;
-          tagsViews[6].text = "内容区全屏";
-        }
-      }, 100);
-      break;
   }
   setTimeout(() => {
     showMenuModel(route.fullPath, route.query, route.params);
   });
 }
 
-function handleCommand(command: any) {
+function handleCommand(command: { key: number; item: tagsViewsType }) {
   const { key, item } = command;
   onClickDrop(key, item);
 }
@@ -487,7 +469,7 @@ function openMenu(tag, e) {
   } else {
     buttonLeft.value = left;
   }
-  useSettingStoreHook().hiddenSideBar
+  getConfig().HiddenSideBar
     ? (buttonTop.value = e.clientY)
     : (buttonTop.value = e.clientY - 40);
   nextTick(() => {
@@ -533,17 +515,6 @@ onMounted(() => {
   // 根据当前路由初始化操作标签页的禁用状态
   showMenuModel(route.fullPath);
 
-  // 触发隐藏标签页
-  emitter.on("tagViewsChange", (key: any) => {
-    if (unref(showTags as any) === key) return;
-    (showTags as any).value = key;
-  });
-
-  // 改变标签风格
-  emitter.on("tagViewsShowModel", key => {
-    showModel.value = key;
-  });
-
   //  接收侧边栏切换传递过来的参数
   emitter.on("changLayoutRoute", indexPath => {
     dynamicRouteTag(indexPath);
@@ -557,9 +528,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  // 解绑`tagViewsChange`、`tagViewsShowModel`、`changLayoutRoute`公共事件，防止多次触发
-  emitter.off("tagViewsChange");
-  emitter.off("tagViewsShowModel");
+  // 解绑`changLayoutRoute`公共事件，防止多次触发
   emitter.off("changLayoutRoute");
 });
 </script>

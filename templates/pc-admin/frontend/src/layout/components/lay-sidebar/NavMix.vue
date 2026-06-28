@@ -11,7 +11,6 @@ import LaySidebarExtraIcon from "../lay-sidebar/components/SidebarExtraIcon.vue"
 import LaySidebarFullScreen from "../lay-sidebar/components/SidebarFullScreen.vue";
 
 import LogoutCircleRLine from "~icons/ri/logout-circle-r-line";
-import Setting from "~icons/ri/settings-3-line";
 
 const menuRef = ref();
 const defaultActive = ref(null);
@@ -20,7 +19,6 @@ const {
   route,
   device,
   logout,
-  onPanel,
   resolvePath,
   username,
   userAvatar,
@@ -115,13 +113,6 @@ watch(
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <span
-        class="set-icon navbar-bg-hover"
-        title="打开系统配置"
-        @click="onPanel"
-      >
-        <IconifyIconOffline :icon="Setting" />
-      </span>
     </div>
   </div>
 </template>

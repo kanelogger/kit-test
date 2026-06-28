@@ -13,25 +13,22 @@ import {
   responsiveStorageNameSpace
 } from "../utils";
 import { usePermissionStoreHook } from "./permission";
+import type { RouteConfigs } from "@/layout/types";
 
 export const useMultiTagsStore = defineStore("pure-multiTags", {
   state: () => ({
     // 存储标签页信息（路由信息）
-    multiTags: storageLocal().getItem<StorageConfigs>(
-      `${responsiveStorageNameSpace()}configure`
-    )?.multiTagsCache
-      ? storageLocal().getItem<StorageConfigs>(
+    multiTags: getConfig().MultiTagsCache
+      ? (storageLocal().getItem<StorageConfigs>(
           `${responsiveStorageNameSpace()}tags`
-        )
+        ) as RouteConfigs[])
       : ([
           ...routerArrays,
           ...usePermissionStoreHook().flatteningRoutes.filter(
             v => v?.meta?.fixedTag
           )
-        ] as any),
-    multiTagsCache: storageLocal().getItem<StorageConfigs>(
-      `${responsiveStorageNameSpace()}configure`
-    )?.multiTagsCache
+        ] as RouteConfigs[]),
+    multiTagsCache: getConfig().MultiTagsCache
   }),
   getters: {
     getMultiTagsCache(state) {
@@ -39,17 +36,6 @@ export const useMultiTagsStore = defineStore("pure-multiTags", {
     }
   },
   actions: {
-    multiTagsCacheChange(multiTagsCache: boolean) {
-      this.multiTagsCache = multiTagsCache;
-      if (multiTagsCache) {
-        storageLocal().setItem(
-          `${responsiveStorageNameSpace()}tags`,
-          this.multiTags
-        );
-      } else {
-        storageLocal().removeItem(`${responsiveStorageNameSpace()}tags`);
-      }
-    },
     tagsCache(multiTags) {
       this.getMultiTagsCache &&
         storageLocal().setItem(
@@ -64,7 +50,7 @@ export const useMultiTagsStore = defineStore("pure-multiTags", {
     ): T {
       switch (mode) {
         case "equal":
-          this.multiTags = value;
+          this.multiTags = value as unknown as RouteConfigs[];
           this.tagsCache(this.multiTags);
           break;
         case "push":
@@ -104,7 +90,7 @@ export const useMultiTagsStore = defineStore("pure-multiTags", {
                 index !== -1 && this.multiTags.splice(index, 1);
               }
             }
-            this.multiTags.push(value);
+            this.multiTags.push(value as unknown as RouteConfigs);
             this.tagsCache(this.multiTags);
             if (
               getConfig()?.MaxTagsLevel &&
@@ -125,9 +111,9 @@ export const useMultiTagsStore = defineStore("pure-multiTags", {
             this.multiTags.splice(position?.startIndex, position?.length);
           }
           this.tagsCache(this.multiTags);
-          return this.multiTags;
+          return this.multiTags as unknown as T;
         case "slice":
-          return this.multiTags.slice(-1);
+          return this.multiTags.slice(-1) as unknown as T;
       }
     }
   }

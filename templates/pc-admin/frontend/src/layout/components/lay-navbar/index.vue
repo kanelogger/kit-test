@@ -8,13 +8,11 @@ import LaySidebarBreadCrumb from "../lay-sidebar/components/SidebarBreadCrumb.vu
 import LaySidebarTopCollapse from "../lay-sidebar/components/SidebarTopCollapse.vue";
 
 import LogoutCircleRLine from "~icons/ri/logout-circle-r-line";
-import Setting from "~icons/ri/settings-3-line";
 
 const {
   layout,
   device,
   logout,
-  onPanel,
   pureApp,
   username,
   userAvatar,
@@ -64,13 +62,6 @@ const {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <span
-        class="set-icon navbar-bg-hover"
-        title="打开系统配置"
-        @click="onPanel"
-      >
-        <IconifyIconOffline :icon="Setting" />
-      </span>
     </div>
   </div>
 </template>

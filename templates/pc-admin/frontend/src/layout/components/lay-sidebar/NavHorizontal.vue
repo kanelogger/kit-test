@@ -1,30 +1,23 @@
 <script setup lang="ts">
-import { emitter } from "@/utils/mitt";
 import { useNav } from "@/layout/hooks/useNav";
 import LaySearch from "../lay-search/index.vue";
 import LayNotice from "../lay-notice/index.vue";
-import { responsiveStorageNameSpace } from "@/config";
-import { ref, nextTick, computed, onMounted } from "vue";
-import { storageLocal, isAllEmpty } from "@pureadmin/utils";
+import { getConfig } from "@/config";
+import { ref, nextTick, computed } from "vue";
+import { isAllEmpty } from "@pureadmin/utils";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import LaySidebarItem from "../lay-sidebar/components/SidebarItem.vue";
 import LaySidebarFullScreen from "../lay-sidebar/components/SidebarFullScreen.vue";
 
 import LogoutCircleRLine from "~icons/ri/logout-circle-r-line";
-import Setting from "~icons/ri/settings-3-line";
 
 const menuRef = ref();
-const showLogo = ref(
-  storageLocal().getItem<StorageConfigs>(
-    `${responsiveStorageNameSpace()}configure`
-  )?.showLogo ?? true
-);
+const showLogo = ref(getConfig().ShowLogo ?? true);
 
 const {
   route,
   title,
   logout,
-  onPanel,
   getLogo,
   username,
   userAvatar,
@@ -40,11 +33,7 @@ nextTick(() => {
   menuRef.value?.handleResize();
 });
 
-onMounted(() => {
-  emitter.on("logoChange", key => {
-    showLogo.value = key;
-  });
-});
+
 </script>
 
 <template>
@@ -95,13 +84,6 @@ onMounted(() => {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <span
-        class="set-icon navbar-bg-hover"
-        title="打开系统配置"
-        @click="onPanel"
-      >
-        <IconifyIconOffline :icon="Setting" />
-      </span>
     </div>
   </div>
 </template>

@@ -7,20 +7,17 @@ import {
   type CSSProperties,
   getCurrentInstance
 } from "vue";
-import type { tagsViewsType } from "../types";
+import type { RouteConfigs, tagsViewsType } from "../types";
 import { useRoute, useRouter } from "vue-router";
-import { responsiveStorageNameSpace } from "@/config";
-import { useSettingStoreHook } from "@/store/modules/settings";
+import { getConfig } from "@/config";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import {
   isEqual,
   isBoolean,
-  storageLocal,
   toggleClass,
   hasClass
 } from "@pureadmin/utils";
 
-import Fullscreen from "~icons/ri/fullscreen-fill";
 import CloseAllTags from "~icons/ri/subtract-line";
 import CloseOtherTags from "~icons/ri/text-spacing";
 import CloseRightTags from "~icons/ri/text-direction-l";
@@ -32,7 +29,6 @@ export function useTags() {
   const route = useRoute();
   const router = useRouter();
   const instance = getCurrentInstance();
-  const pureSetting = useSettingStoreHook();
 
   const buttonTop = ref(0);
   const buttonLeft = ref(0);
@@ -40,25 +36,14 @@ export function useTags() {
   const visible = ref(false);
   const activeIndex = ref(-1);
   // 当前右键选中的路由信息
-  const currentSelect = ref({});
+  const currentSelect = ref<RouteConfigs>({});
   const isScrolling = ref(false);
 
   /** 显示模式，默认灵动模式 */
-  const showModel = ref(
-    storageLocal().getItem<StorageConfigs>(
-      `${responsiveStorageNameSpace()}configure`
-    )?.showModel || "smart"
-  );
+  const showModel = ref<string>(getConfig().ShowModel || "smart");
   /** 是否隐藏标签页，默认显示 */
-  const showTags =
-    ref(
-      storageLocal().getItem<StorageConfigs>(
-        `${responsiveStorageNameSpace()}configure`
-      ).hideTabs
-    ) ?? ref("false");
-  const multiTags: any = computed(() => {
-    return useMultiTagsStoreHook().multiTags;
-  });
+  const showTags = ref<boolean>(getConfig().HideTabs ?? false);
+  const multiTags = computed(() => useMultiTagsStoreHook().multiTags);
 
   const tagsViews = reactive<Array<tagsViewsType>>([
     {
@@ -102,17 +87,14 @@ export function useTags() {
       divided: false,
       disabled: multiTags.value.length > 1 ? false : true,
       show: true
-    },
-    {
-      icon: Fullscreen,
-      text: "内容区全屏",
-      divided: true,
-      disabled: false,
-      show: true
     }
   ]);
 
-  function conditionHandle(item, previous, next) {
+  function conditionHandle(
+    item: RouteConfigs,
+    previous: string | boolean | undefined,
+    next: string | boolean | undefined
+  ) {
     const currentName = route.name || "";
     const itemName = item.name || "";
 
@@ -132,28 +114,24 @@ export function useTags() {
   }
 
   const isFixedTag = computed(() => {
-    return item => {
-      return isBoolean(item?.meta?.fixedTag) && item?.meta?.fixedTag === true;
-    };
+    return (item: RouteConfigs) =>
+      isBoolean(item?.meta?.fixedTag) && item?.meta?.fixedTag === true;
   });
 
   const iconIsActive = computed(() => {
-    return (item, index) => {
+    return (item: RouteConfigs, index: number) => {
       if (index === 0) return;
       return conditionHandle(item, true, false);
     };
   });
 
   const linkIsActive = computed(() => {
-    return item => {
-      return conditionHandle(item, "is-active", "");
-    };
+    return (item: RouteConfigs) => conditionHandle(item, "is-active", "");
   });
 
   const scheduleIsActive = computed(() => {
-    return item => {
-      return conditionHandle(item, "schedule-active", "");
-    };
+    return (item: RouteConfigs) =>
+      conditionHandle(item, "schedule-active", "");
   });
 
   const getTabStyle = computed((): CSSProperties => {
@@ -172,7 +150,7 @@ export function useTags() {
   };
 
   /** 鼠标移入添加激活样式 */
-  function onMouseenter(index) {
+  function onMouseenter(index: number) {
     if (index) activeIndex.value = index;
     if (unref(showModel) === "smart") {
       if (hasClass(instance.refs["schedule" + index][0], "schedule-active"))
@@ -187,7 +165,7 @@ export function useTags() {
   }
 
   /** 鼠标移出恢复默认样式 */
-  function onMouseleave(index) {
+  function onMouseleave(index: number) {
     activeIndex.value = -1;
     if (unref(showModel) === "smart") {
       if (hasClass(instance.refs["schedule" + index][0], "schedule-active"))
@@ -201,24 +179,7 @@ export function useTags() {
     }
   }
 
-  function onContentFullScreen() {
-    pureSetting.hiddenSideBar
-      ? pureSetting.changeSetting({ key: "hiddenSideBar", value: false })
-      : pureSetting.changeSetting({ key: "hiddenSideBar", value: true });
-  }
-
-  onMounted(() => {
-    if (!showModel.value) {
-      const configure = storageLocal().getItem<StorageConfigs>(
-        `${responsiveStorageNameSpace()}configure`
-      );
-      configure.showModel = "card";
-      storageLocal().setItem(
-        `${responsiveStorageNameSpace()}configure`,
-        configure
-      );
-    }
-  });
+  onMounted(() => {});
 
   return {
     Close,
@@ -234,7 +195,6 @@ export function useTags() {
     buttonLeft,
     translateX,
     isFixedTag,
-    pureSetting,
     activeIndex,
     getTabStyle,
     isScrolling,
@@ -246,7 +206,6 @@ export function useTags() {
     closeMenu,
     onMounted,
     onMouseenter,
-    onMouseleave,
-    onContentFullScreen
+    onMouseleave
   };
 }

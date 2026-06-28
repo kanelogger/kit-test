@@ -1,5 +1,5 @@
 import Sortable from "sortablejs";
-import { useEpThemeStoreHook } from "@/store/modules/epTheme";
+import { getConfig } from "@/config";
 import {
   type PropType,
   ref,
@@ -75,7 +75,7 @@ export default defineComponent({
       return s => {
         return {
           background:
-            s === size.value ? useEpThemeStoreHook().epThemeColor : "",
+            s === size.value ? getConfig().EpThemeColor : "",
           color: s === size.value ? "#fff" : "var(--el-text-color-primary)"
         };
       };
@@ -188,9 +188,11 @@ export default defineComponent({
     const rowDrop = (event: { preventDefault: () => void }) => {
       event.preventDefault();
       nextTick(() => {
-        const wrapper: HTMLElement = (
-          instance?.proxy?.$refs[`GroupRef${unref(props.tableKey)}`] as any
-        ).$el.firstElementChild;
+        const groupRef = instance?.proxy?.$refs[
+          `GroupRef${unref(props.tableKey)}`
+        ] as { $el: { firstElementChild: HTMLElement } } | undefined;
+        const wrapper = groupRef?.$el.firstElementChild;
+        if (!wrapper) return;
         Sortable.create(wrapper, {
           animation: 300,
           handle: ".drag-btn",

@@ -4,13 +4,14 @@ import config from "./config";
 import * as jwt from "jsonwebtoken";
 import * as dayjs from "dayjs";
 import * as multer from "multer";
-import { user } from "./models/mysql";
+import { user, initUser } from "./models/mysql";
 import Logger from "./loaders/logger";
 import { queryTable } from "./utils/mysql";
 const expressSwagger = require("express-swagger-generator")(app);
 expressSwagger(config.options);
 
 queryTable(user);
+queryTable(initUser);
 
 import {
   login,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Props } from "../types";
+import { getConfig } from "@/config";
 import { useResizeObserver } from "@pureadmin/utils";
-import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, computed, getCurrentInstance, onMounted } from "vue";
 import EnterOutlined from "@/assets/svg/enter_outlined.svg?component";
@@ -21,7 +21,7 @@ const itemStyle = computed(() => {
   return item => {
     return {
       background:
-        item?.path === active.value ? useEpThemeStoreHook().epThemeColor : "",
+        item?.path === active.value ? getConfig().EpThemeColor : "",
       color: item.path === active.value ? "#fff" : "",
       fontSize: item.path === active.value ? "16px" : "14px"
     };

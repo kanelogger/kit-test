@@ -21,6 +21,7 @@ export type routeMetaType = {
   showLink?: boolean;
   savedPosition?: boolean;
   auths?: Array<string>;
+  fixedTag?: boolean;
 };
 
 export type RouteConfigs = {
@@ -44,23 +45,6 @@ export type tagsViewsType = {
   show: boolean;
 };
 
-export interface setType {
-  sidebar: {
-    opened: boolean;
-    withoutAnimation: boolean;
-    isClickCollapse: boolean;
-  };
-  device: string;
-  fixedHeader: boolean;
-  classes: {
-    hideSidebar: boolean;
-    openSidebar: boolean;
-    withoutAnimation: boolean;
-    mobile: boolean;
-  };
-  hideTabs: boolean;
-}
-
 export type menuType = {
   id?: number;
   name?: string;
@@ -79,11 +63,6 @@ export type menuType = {
   parentId?: number;
   pathList?: number[];
   redirect?: string;
-};
-
-export type themeColorsType = {
-  color: string;
-  themeColor: string;
 };
 
 export interface scrollbarDomType extends HTMLElement {

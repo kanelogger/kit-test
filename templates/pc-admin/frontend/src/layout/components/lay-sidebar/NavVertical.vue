@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { emitter } from "@/utils/mitt";
 import { useNav } from "@/layout/hooks/useNav";
-import { responsiveStorageNameSpace } from "@/config";
-import { storageLocal, isAllEmpty } from "@pureadmin/utils";
+import { getConfig } from "@/config";
+import { isAllEmpty } from "@pureadmin/utils";
 import { findRouteByPath, getParentPaths } from "@/router/utils";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import LaySidebarLogo from "../lay-sidebar/components/SidebarLogo.vue";
 import LaySidebarItem from "../lay-sidebar/components/SidebarItem.vue";
 import LaySidebarLeftCollapse from "../lay-sidebar/components/SidebarLeftCollapse.vue";
@@ -14,11 +13,7 @@ import LaySidebarCenterCollapse from "../lay-sidebar/components/SidebarCenterCol
 
 const route = useRoute();
 const isShow = ref(false);
-const showLogo = ref(
-  storageLocal().getItem<StorageConfigs>(
-    `${responsiveStorageNameSpace()}configure`
-  )?.showLogo ?? true
-);
+const showLogo = ref(getConfig().ShowLogo ?? true);
 
 const {
   device,
@@ -74,15 +69,6 @@ watch(
 
 onMounted(() => {
   getSubMenuData();
-
-  emitter.on("logoChange", key => {
-    showLogo.value = key;
-  });
-});
-
-onBeforeUnmount(() => {
-  // 解绑`logoChange`公共事件，防止多次触发
-  emitter.off("logoChange");
 });
 </script>
 

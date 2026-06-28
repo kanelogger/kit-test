@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import LayFrame from "../lay-frame/index.vue";
 import LayFooter from "../lay-footer/index.vue";
-import { useTags } from "@/layout/hooks/useTag";
-import { useGlobal, isNumber } from "@pureadmin/utils";
+import { getConfig } from "@/config";
+import { useGlobal } from "@pureadmin/utils";
 import BackTopIcon from "@/assets/svg/back_top.svg?component";
 import { h, computed, Transition, defineComponent } from "vue";
 import { usePermissionStoreHook } from "@/store/modules/permission";
@@ -11,8 +11,7 @@ const props = defineProps({
   fixedHeader: Boolean
 });
 
-const { showModel } = useTags();
-const { $storage, $config } = useGlobal<GlobalPropertiesApi>();
+const { $config } = useGlobal<GlobalPropertiesApi>();
 
 const isKeepAlive = computed(() => {
   return $config?.KeepAlive;
@@ -24,48 +23,34 @@ const transitions = computed(() => {
   };
 });
 
-const hideTabs = computed(() => {
-  return $storage?.configure.hideTabs;
-});
-
-const hideFooter = computed(() => {
-  return $storage?.configure.hideFooter;
-});
-
-const stretch = computed(() => {
-  return $storage?.configure.stretch;
-});
+const hideTabs = getConfig().HideTabs ?? false;
+const hideFooter = getConfig().HideFooter ?? false;
+const showModel = getConfig().ShowModel || "smart";
 
 const layout = computed(() => {
-  return $storage?.layout.layout === "vertical";
+  return $config?.Layout === "vertical";
 });
 
-const getMainWidth = computed(() => {
-  return isNumber(stretch.value)
-    ? stretch.value + "px"
-    : stretch.value
-      ? "1440px"
-      : "100%";
-});
+const getMainWidth = "100%";
 
 const getSectionStyle = computed(() => {
   return [
-    hideTabs.value && layout ? "padding-top: 48px;" : "",
-    !hideTabs.value && layout
-      ? showModel.value == "chrome"
+    hideTabs && layout.value ? "padding-top: 48px;" : "",
+    !hideTabs && layout.value
+      ? showModel == "chrome"
         ? "padding-top: 85px;"
         : "padding-top: 81px;"
       : "",
-    hideTabs.value && !layout.value ? "padding-top: 48px;" : "",
-    !hideTabs.value && !layout.value
-      ? showModel.value == "chrome"
+    hideTabs && !layout.value ? "padding-top: 48px;" : "",
+    !hideTabs && !layout.value
+      ? showModel == "chrome"
         ? "padding-top: 85px;"
         : "padding-top: 81px;"
       : "",
     props.fixedHeader
       ? ""
       : `padding-top: 0;${
-          hideTabs.value
+          hideTabs
             ? "min-height: calc(100vh - 48px);"
             : "min-height: calc(100vh - 86px);"
         }`

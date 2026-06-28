@@ -30,12 +30,6 @@ export type multiType = {
   params?: object;
 };
 
-export type setType = {
-  title: string;
-  fixedHeader: boolean;
-  hiddenSideBar: boolean;
-};
-
 export type userType = {
   avatar?: string;
   username?: string;

@@ -2,7 +2,7 @@
 import Sortable from "sortablejs";
 import SearchHistoryItem from "./SearchHistoryItem.vue";
 import type { optionsItem, dragItem, Props } from "../types";
-import { useEpThemeStoreHook } from "@/store/modules/epTheme";
+import { getConfig } from "@/config";
 import { useResizeObserver, isArray, delay } from "@pureadmin/utils";
 import { ref, watch, nextTick, computed, getCurrentInstance } from "vue";
 
@@ -27,7 +27,7 @@ const itemStyle = computed(() => {
   return item => {
     return {
       background:
-        item?.path === active.value ? useEpThemeStoreHook().epThemeColor : "",
+        item?.path === active.value ? getConfig().EpThemeColor : "",
       color: item.path === active.value ? "#fff" : "",
       fontSize: item.path === active.value ? "16px" : "14px"
     };
@@ -36,7 +36,7 @@ const itemStyle = computed(() => {
 
 const titleStyle = computed(() => {
   return {
-    color: useEpThemeStoreHook().epThemeColor,
+    color: getConfig().EpThemeColor,
     fontWeight: 500
   };
 });

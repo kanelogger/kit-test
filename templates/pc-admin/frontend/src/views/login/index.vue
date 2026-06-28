@@ -8,15 +8,11 @@ import { debounce } from "@pureadmin/utils";
 import { useNav } from "@/layout/hooks/useNav";
 import { useEventListener } from "@vueuse/core";
 import type { FormInstance } from "element-plus";
-import { useLayout } from "@/layout/hooks/useLayout";
 import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
-import dayIcon from "@/assets/svg/day.svg?component";
-import darkIcon from "@/assets/svg/dark.svg?component";
 import Lock from "~icons/ri/lock-fill";
 import User from "~icons/ri/user-3-fill";
 
@@ -29,11 +25,6 @@ const loading = ref(false);
 const disabled = ref(false);
 const ruleFormRef = ref<FormInstance>();
 
-const { initStorage } = useLayout();
-initStorage();
-
-const { dataTheme, overallStyle, dataThemeChange } = useDataThemeChange();
-dataThemeChange(overallStyle.value);
 const { title } = useNav();
 
 const ruleForm = reactive({
@@ -72,8 +63,8 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   });
 };
 
-const immediateDebounce: any = debounce(
-  formRef => onLogin(formRef),
+const immediateDebounce = debounce(
+  () => onLogin(ruleFormRef.value),
   1000,
   true
 );
@@ -84,23 +75,13 @@ useEventListener(document, "keydown", ({ code }) => {
     !disabled.value &&
     !loading.value
   )
-    immediateDebounce(ruleFormRef.value);
+    immediateDebounce();
 });
 </script>
 
 <template>
   <div class="select-none">
     <img :src="bg" class="wave" />
-    <div class="flex-c absolute right-5 top-3">
-      <!-- 主题 -->
-      <el-switch
-        v-model="dataTheme"
-        inline-prompt
-        :active-icon="dayIcon"
-        :inactive-icon="darkIcon"
-        @change="dataThemeChange"
-      />
-    </div>
     <div class="login-container">
       <div class="img">
         <component :is="toRaw(illustration)" />

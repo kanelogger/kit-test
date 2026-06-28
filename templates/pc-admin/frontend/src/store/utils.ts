@@ -19,7 +19,6 @@ export {
   deviceDetection
 } from "@pureadmin/utils";
 export type {
-  setType,
   appType,
   userType,
   multiType,
