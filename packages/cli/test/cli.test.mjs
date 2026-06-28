@@ -124,8 +124,12 @@ test("init creates scaffold and initialized check passes", async () => {
     assert.equal(existsSync(join(project, "frontend/node_modules")), false);
     assert.equal(existsSync(join(project, "backend/node_modules")), false);
     assert.equal(existsSync(join(project, "frontend/dist")), false);
-    assert.equal(existsSync(join(project, "frontend/.env")), false);
-    assert.equal(existsSync(join(project, "backend/.env")), false);
+    assert.equal(existsSync(join(project, "frontend/.env.example")), true);
+    assert.equal(existsSync(join(project, "frontend/.env")), true);
+    assert.equal(existsSync(join(project, "frontend/.env.development.example")), true);
+    assert.equal(existsSync(join(project, "frontend/.env.development")), true);
+    assert.equal(existsSync(join(project, "backend/.env.example")), true);
+    assert.equal(existsSync(join(project, "backend/.env")), true);
     assert.match(await readFile(join(project, "frontend/SPECS/API.md"), "utf8"), /^Source: \.\.\/\.\.\/SPECS\/API\.md\n?$/);
 
     const check = run(["check"], { cwd: project });

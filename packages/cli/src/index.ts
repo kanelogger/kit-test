@@ -127,6 +127,7 @@ async function initCommand(args: string[]): Promise<void> {
     projectName: basename(projectName),
     kitCliPath: CLI_PATH,
   });
+  await materializeEnvExamples(targetRoot);
   await copyDirectory(KIT_SKILLS_ROOT, join(targetRoot, ".agents", "skills"));
 
   await mkdir(join(targetRoot, "frontend"), { recursive: true });
@@ -577,6 +578,22 @@ async function copyTemplateFile(sourcePath: string, targetPath: string, replacem
   await writeFile(targetPath, content, "utf8");
 }
 
+async function materializeEnvExamples(root: string): Promise<void> {
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    if (shouldSkipTemplateEntry(entry.name)) continue;
+
+    const sourcePath = join(root, entry.name);
+    if (entry.isDirectory()) {
+      await materializeEnvExamples(sourcePath);
+      continue;
+    }
+
+    if (entry.isFile() && isEnvExample(entry.name)) {
+      await copyFile(sourcePath, sourcePath.slice(0, -".example".length));
+    }
+  }
+}
+
 function renderKitRunner(cliPath: string): string {
   return `#!/usr/bin/env node
 import { spawnSync } from "node:child_process";
@@ -671,7 +688,11 @@ function allowedWorkflowFiles(stage: Stage): Set<string> {
 }
 
 function shouldSkipTemplateEntry(name: string): boolean {
-  return name === "node_modules" || name === "dist" || name === ".DS_Store" || name === ".git" || name === ".cache" || name.startsWith(".env");
+  return name === "node_modules" || name === "dist" || name === ".DS_Store" || name === ".git" || name === ".cache" || (name.startsWith(".env") && !isEnvExample(name));
+}
+
+function isEnvExample(name: string): boolean {
+  return name.startsWith(".env") && name.endsWith(".example");
 }
 
 function stripQuotes(value: string): string {
