@@ -66,8 +66,6 @@
 | `skill-optimize` | `skill-optimizer` | 优化现有技能 |
 | `handoff` | `handoff` | 阶段间切换 Agent/LLM 的交接协议 |
 
-**L3 技能数量：6 个**
-
 ### 项目自建技能
 
 以下技能不在 `hk-skills` 仓库中，需在本项目内实现：
@@ -77,21 +75,3 @@
 | `workflow-stage-gate` | `kit/skills/workflow-stage-gate/SKILL.md` | 校验 `workflow-state.json`，不满足阶段条件则阻止继续 |
 
 ---
-
-## 四、汇总
-
-- **已迁移技能总数**：30 个
-- **L1 核心技能**：15 个
-- **L2 条件触发技能**：10 个（含 1 个与 L1 共用）
-- **L3 元能力/流程治理**：6 个
-- **项目自建待实现**：1 个（`workflow-stage-gate`）
-
----
-
-## 五、使用约定
-
-1. **默认主链**：Agent 按 L1 顺序推进，不得跳过阶段文件要求。
-2. **阶段锁**：每进入下一阶段前，必须满足 `workflow-stage-gate` 校验。
-3. **条件触发**：遇到对应触发条件时，调用 L2 技能补充主链。
-4. **元能力**：在项目初始化、Agent 切换、技能缺失时调用 L3 技能。
-5. **别名映射**：`AGENTS.md` 中应使用项目别名，并在路由表中指向实际 Skill 目录。
